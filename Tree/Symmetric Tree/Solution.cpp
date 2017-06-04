@@ -7,55 +7,69 @@
  *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
  * };
  */
+
 /*
-You need to construct a string consists of parenthesis and integers from a binary tree with the preorder traversing way.
+Given a binary tree, check whether it is a mirror of itself (ie, symmetric around its center).
 
-The null node needs to be represented by empty parenthesis pair "()". And you need to omit all the empty parenthesis pairs that don't affect the one-to-one mapping relationship between the string and the original binary tree.
+For example, this binary tree [1,2,2,3,4,4,3] is symmetric:
 
-Example 1:
-Input: Binary tree: [1,2,3,4]
-       1
-     /   \
-    2     3
-   /    
-  4     
+    1
+   / \
+  2   2
+ / \ / \
+3  4 4  3
+But the following [1,2,2,null,3,null,3] is not:
+    1
+   / \
+  2   2
+   \   \
+   3    3
+*/
 
-Output: "1(2(4))(3)"
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ * };
+ */
 
-Explanation: Originallay it needs to be "1(2(4)())(3()())", 
-but you need to omit all the unnecessary empty parenthesis pairs. 
-And it will be "1(2(4))(3)".
-Example 2:
-Input: Binary tree: [1,2,3,null,4]
-       1
-     /   \
-    2     3
-     \  
-      4 
+/*
+Given a binary tree, check whether it is a mirror of itself (ie, symmetric around its center).
 
-Output: "1(2()(4))(3)"
+For example, this binary tree [1,2,2,3,4,4,3] is symmetric:
 
-Explanation: Almost the same as the first example, 
-except we can't omit the first parenthesis pair to break the one-to-one mapping relationship between the input and the output.
+    1
+   / \
+  2   2
+ / \ / \
+3  4 4  3
+But the following [1,2,2,null,3,null,3] is not:
+    1
+   / \
+  2   2
+   \   \
+   3    3
 */
 
 class Solution {
-public:   
-    stringtree2str(TreeNode* t)
+public:
+    bool helper(TreeNode * r1, TreeNode * r2)
     {
-	if (!t)
-            return "";
-        
-        string l = tree2str(t->left);
-        string r = tree2str(t->right);
-        
-        string result = to_string(t->val);
-        if (!l.empty())
-            result += "("+l+")";
-        if (l.empty() && !r.empty())
-            result += "()";
-        if (!r.empty())
-            result += "("+r+")";
-        return result;    
+        if (!r1 && !r2)
+            return true;
+        else if (!r1 || !r2)
+            return false;
+        else
+            return r1->val == r2->val && helper(r1->left, r2->right) && helper(r1->right, r2->left);
+    }
+    
+    bool isSymmetric(TreeNode* root) {
+        if (!root)
+            return true;
+            
+        return helper(root->left, root->right);    
     }
 };
