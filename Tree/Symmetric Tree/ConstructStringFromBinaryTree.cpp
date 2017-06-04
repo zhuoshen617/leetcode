@@ -42,20 +42,5 @@ except we can't omit the first parenthesis pair to break the one-to-one mapping 
 class Solution {
 public:   
     stringtree2str(TreeNode* t)
-    {
-	if (!t)
-            return "";
-        
-        string l = tree2str(t->left);
-        string r = tree2str(t->right);
-        
-        string result = to_string(t->val);
-        if (!l.empty())
-            result += "("+l+")";
-        if (l.empty() && !r.empty())
-            result += "()";
-        if (!r.empty())
-            result += "("+r+")";
-        return result;    
     }
 };
