@@ -25,7 +25,6 @@ Recover the tree without changing its structure.
  */
 class Solution {
 public:
-
     void helper(TreeNode* root, TreeNode** first, TreeNode** second, TreeNode** prev)
     {
         if (!root)
