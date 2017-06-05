@@ -32,33 +32,7 @@ Follow up: Could you do that without using any extra space? (Assume that the imp
 
 class Solution {
 public:
-    void helper (TreeNode * root, unordered_map<int, int> & hashmap)
-    {
-        if (!root)
-            return;
-        
-        hashmap[root->val]++;
-        helper(root->left, hashmap);
-        helper(root->right, hashmap);
-    }
     vector<int> findMode(TreeNode* root) 
     {
-        vector<int> result;
-        unordered_map<int, int> hashmap;
-        helper(root, hashmap);
-        
-        for (const auto & p : hashmap)
-        {
-            if (result.empty() || hashmap[result.back()] == p.second)
-                ;
-            else if (hashmap[result.back()] < p.second)
-                result.clear();
-            else
-                continue;
-          
-            result.push_back(p.first);
-        }
-        
-        return result;
     }
 };
