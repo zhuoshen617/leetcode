@@ -1,0 +1,37 @@
+class UnionFind
+{
+public:
+    vector<int> hashmap;
+    UnionFind(int n) {
+        hashmap.resize(n, -1);
+    }
+        
+    int find(int x)
+    {
+        int parent = x;
+        while (hashmap[parent] != parent)
+            parent = hashmap[parent];
+        
+        int temp = 1;
+        int p = x;
+        while (p != hashmap[x])
+        {
+            temp = hashmap[x];
+            hashmap[x] = parent;
+            p = temp;
+        }
+        
+        return parent;
+    }
+    
+    void merge(int x1, int x2)
+    {
+        int p1 = find(x1);
+        int p2 = find(x2);
+    
+        if (p1 == p2)
+            return;
+        else
+            hashmap[p2] = p1;
+    }
+};
