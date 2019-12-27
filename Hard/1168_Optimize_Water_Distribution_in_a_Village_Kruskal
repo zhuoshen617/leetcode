@@ -1,0 +1,97 @@
+// using Prims algo to find min spanning tree.
+// the idea is to start with lowest cost edges 
+// and find next lowest connected edges without forming circles.
+// Note, the idea is to form a tree so this method will never 
+// have disconnected nodes.
+
+
+class Solution {
+public:
+    int minCostToSupplyWater(int n, vector<int>& wells, vector<vector<int>>& pipes) {
+        for (int i = 0; i < wells.size(); i++)
+            pipes.push_back(vector<int>({0, i+1, wells[i]}));
+        
+        int minResult = INT_MAX;
+        int minIndex = -1;
+        unordered_map<int, vector<int>> mapDependency;
+        for (int i = 0; i < pipes.size(); i++)
+        {
+            if (pipes[i][2] < minResult)
+            {
+                minResult = pipes[i][2];
+                minIndex = i;
+            }
+            
+            mapDependency[pipes[i][0]].push_back(i);
+            mapDependency[pipes[i][1]].push_back(i);
+        }
+        
+        int result = pipes[minIndex][2];
+        unordered_set<int> visited;
+        unordered_set<int> visitedEdge;
+        visited.insert(pipes[minIndex][0]);
+        visited.insert(pipes[minIndex][1]);
+        visitedEdge.insert(minIndex);
+        
+        multimap<int, int> sortedEdges;
+        
+        for (auto i : mapDependency[pipes[minIndex][0]])
+        {
+            if (visitedEdge.count(i) == 0)
+            {
+                visitedEdge.insert(i);
+                sortedEdges.insert(pair<int, int>(pipes[i][2], i));
+            }
+        }
+        
+        for (auto i : mapDependency[pipes[minIndex][1]])
+        {
+            if (visitedEdge.count(i) == 0)
+            {
+               visitedEdge.insert(i);
+               sortedEdges.insert(pair<int, int>(pipes[i][2], i));
+            }
+        }
+        
+        while (visited.size() < n + 1 && sortedEdges.size())
+        {
+            auto cost = sortedEdges.begin()->first;
+            auto  pipeIndex = sortedEdges.begin()->second;
+            sortedEdges.erase(sortedEdges.begin()); 
+            if (visited.count(pipes[pipeIndex][0]) && visited.count(pipes[pipeIndex][1]))
+            {
+                continue;
+            }
+            else if (visited.count(pipes[pipeIndex][0]) == 0)
+            {
+                visited.insert(pipes[pipeIndex][0]);
+                result += cost;
+                
+                for (auto pIndex : mapDependency[pipes[pipeIndex][0]])
+                {
+                    if (visitedEdge.count(pIndex) == 0)
+                    {
+                        visitedEdge.insert(pIndex);
+                        sortedEdges.insert(pair<int, int>(pipes[pIndex][2], pIndex));
+                    }
+                }
+            }
+            else
+            {
+                visited.insert(pipes[pipeIndex][1]);
+                result += cost;
+                
+                for (auto pIndex: mapDependency[pipes[pipeIndex][1]])
+                {
+                    if (visitedEdge.count(pIndex) == 0)
+                    {
+                        visitedEdge.insert(pIndex);
+                        sortedEdges.insert(pair<int, int>(pipes[pIndex][2], pIndex));
+                    }
+                }
+            }
+        }
+        
+        return result;
+    }
+};
