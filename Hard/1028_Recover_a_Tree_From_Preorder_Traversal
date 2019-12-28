@@ -1,0 +1,54 @@
+// recursion idea to find the left and right substr.
+
+class Solution {
+public:
+    TreeNode * helper(const string & str, int start, int end, int level)
+    {
+        if (start > end)
+            return NULL;
+        
+        int num = 0;
+        while (start <= end && isdigit(str[start]))
+        {
+            num = num * 10 + str[start]-'0';
+            start++;
+        }
+        
+        TreeNode * node = new TreeNode(num);
+        string pattern = "(" + to_string(level) + ")";
+        size_t posLeft = str.find(pattern.c_str(), start);
+        if (posLeft == string::npos || posLeft > end)
+            return node;
+        
+        size_t posRight = str.find(pattern.c_str(), start + pattern.size());
+        if (posRight == string::npos || posRight > end)
+        {
+            node->left = helper(str, start + pattern.size(), end, level+1);
+            return node;
+        }
+        
+        node->left = helper(str, start + pattern.size(), posRight-1, level+1);
+        node->right = helper(str, posRight+pattern.size(), end, level+1);
+        return node;
+    }
+    
+    TreeNode* recoverFromPreorder(string S) {
+        string str;
+        int num = 0;
+        for (char c : S)
+        {
+            if (c == '-')
+            {
+                num++;
+                continue;
+            }
+            
+            if (num > 0)
+                str += "("+to_string(num) +")";
+            num = 0;
+            str += c;
+        }
+        cout << str << endl;
+        return helper(str, 0, str.size(), 1);
+    }
+};
