@@ -1,0 +1,84 @@
+// another cool expansion for the interview question.
+// note it is very different to check if they can meet
+// vs what is the shortest path.
+// so the idea is to check if any one is surrounded by 
+// block. The key is to tell with N blocks, what is the
+// maximum area to form. Note that the cells are discrete.
+// so with 200 as one edge, the other egde is 199 
+// (not 200/sqrt(2)). You need to check both source -> target 
+// and target -> source as they can be in the same blockage.
+// 
+// 0th      _________________________
+//          |O O O O O O O X
+//          |O O O O O O X
+//          |O O O O O X
+//          |O O O O X
+//          .O O O X
+//          .O O X
+//          .O X
+// 200th    |X
+
+class Solution {
+public:
+    typedef pair<int, int> P;
+    bool isValid(int x, int y)
+    {
+        if (x <0 || x >=1e6 || y <0 || y >= 1e6)
+            return false;
+        
+        return true;
+    }
+    bool helper(vector<vector<int>>& blocked, vector<int>& source, vector<int>& target) {
+        vector<int> v1({0,1,0,-1});
+        vector<int> v2({1,0,-1,0});
+        
+        set<P> blockset;
+        for (auto b : blocked)
+            blockset.insert(P(b[0], b[1]));
+        
+        queue<P> q;
+        set<P> visited;
+        q.push(P(source[0], source[1]));
+        visited.insert(P(source[0], source[1]));
+        int maxArea = (blocked.size() * blocked.size()) / 2;
+        while (q.size())
+        {
+            if (visited.size() > maxArea)
+                return true;
+            
+            size_t size = q.size();
+            for (int i = 0; i < size; i++)
+            {
+                auto p = q.front();
+                q.pop();
+                
+                if (p.first == target[0] && p.second == target[1])
+                    return true;
+                
+                for (int k = 0; k < 4; k++)
+                {
+                    int nx = p.first + v1[k];
+                    int ny = p.second + v2[k];
+                    
+                    if (!isValid(nx, ny))
+                        continue;
+                    
+                    if (blockset.count(P(nx, ny)))
+                        continue;
+                    
+                    if (visited.count(P(nx, ny)))
+                        continue;
+                    
+                    q.push(P(nx,ny));
+                    visited.insert(P(nx,ny));
+                }
+            }
+        }
+        
+        return false;
+    }
+    
+    bool isEscapePossible(vector<vector<int>>& blocked, vector<int>& source, vector<int>& target) {
+        return helper(blocked, source, target) && helper(blocked, target, source);
+    }
+};
