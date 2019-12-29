@@ -1,0 +1,131 @@
+// divide the grid into 4 sections
+
+// n1 | n2
+//----|---
+// n3 | n4
+ 
+
+// (c1 c2)
+
+//         (mid1,mid2)
+
+//                      (c3 c4)
+
+// n1 n2
+// n3 n4
+class SegTreeNode {
+public:
+    int c1, c2, c3, c4;
+    int sum;
+    SegTreeNode *n1, *n2, *n3, *n4;
+    SegTreeNode(int a, int b, int c, int d, int s): c1(a), c2(b), c3(c), c4(d), sum(s) {
+        n1 = n2 = n3 = n4 = NULL;
+    }
+};
+
+class NumMatrix {
+public:
+    SegTreeNode * head;
+    
+    void updateSum(SegTreeNode * node)
+    {
+        int sum = 0;
+        if (node->n1)
+            sum += node->n1->sum;
+        if (node->n2)
+            sum += node->n2->sum;
+        if (node->n3)
+            sum += node->n3->sum;
+        if (node->n4)
+            sum += node->n4->sum;
+        
+        node->sum = sum;
+    }
+    
+    SegTreeNode * build(vector<vector<int>>& matrix, int c1, int c2, int c3, int c4)
+    {
+        if (c1 > c3 || c2 > c4)
+            return NULL;
+        
+        if (c1 == c3 && c2 == c4)
+            return new SegTreeNode(c1, c2, c3, c4, matrix[c1][c2]);
+        
+        int mid1 = (c3+c1)/2;
+        int mid2 = (c4+c2)/2;
+        auto node = new SegTreeNode(c1, c2, c3, c4, 0);
+        node->n1 = build(matrix, c1, c2, mid1, mid2);
+        node->n2 = build(matrix, c1, mid2+1, mid1, c4);
+        node->n3 = build(matrix, mid1+1, c2, c3, mid2);
+        node->n4 = build(matrix, mid1+1, mid2+1, c3, c4);
+        
+        updateSum(node);
+        return node;
+    }
+    
+    NumMatrix(vector<vector<int>>& matrix) {
+        if (matrix.size() == 0)
+            return;
+        
+        size_t m = matrix.size(), n = matrix[0].size();
+        head = build(matrix, 0, 0, m - 1, n - 1);
+    }
+    
+    void updateHelper(int row, int col, int val, SegTreeNode * node)
+    {
+        if (!node)
+            return;
+        
+        if (node->c1 == node->c3 && node->c2 == node->c4 && node->c1 == row && node->c2 == col)
+        {
+            node->sum = val;
+            return;
+        }
+        
+        
+        if (node->n1 && node->n1->c3 >= row && node->n1->c4 >= col)
+            updateHelper(row, col, val, node->n1);
+        else if (node->n2 && node->n2->c3 >= row && node->n2->c2 <= col)
+            updateHelper(row, col, val, node->n2);
+        else if (node->n3 && node->n3->c1 <= row && node->n3->c4 >= col)
+            updateHelper(row, col, val, node->n3);
+        else if (node->n4 && node->n4->c1 <= row && node->n4->c2 <= col)
+            updateHelper(row, col, val, node->n4);
+        
+        updateSum(node);
+    }
+    
+    void update(int row, int col, int val) {
+        updateHelper(row, col, val, head);
+    }
+    
+    int sumHelper(int row1, int col1, int row2, int col2, SegTreeNode * node)
+    {
+        if (!node)
+            return 0;
+        
+        if (row1 > row2 || col1 > col2)
+            return 0;
+        
+        if (node->c1 >= row1 && node->c2 >= col1 && node->c3 <= row2 && node->c4 <= col2)
+        {
+            return node->sum;
+        }
+        
+        int sum = 0;
+        if (node->n1 && row1 <= node->n1->c3 && col1 <= node->n1->c4)
+            sum += sumHelper(row1, col1, row2, col2, node->n1);
+        if (node->n2 && node->n2->c3 >= row1 && node->n2->c2 <= col2)
+            sum += sumHelper(row1, col1, row2, col2, node->n2);
+        if (node->n3 && row2 >= node->n3->c1 && col1 <= node->n3->c4)
+            sum += sumHelper(row1, col1, row2, col2, node->n3);
+        if (node->n4 && node->n4->c1 <= row2 && node->n4->c2 <= col2)
+            sum += sumHelper(row1, col1, row2, col2, node->n4);
+        
+        return sum;
+    }
+    
+    
+    int sumRegion(int row1, int col1, int row2, int col2) {
+        return sumHelper(row1, col1, row2, col2, head);
+    }
+};
