@@ -1,0 +1,63 @@
+
+// read this doc to refersh your mind
+// https://leetcode.com/problems/reverse-pairs/discuss/97268/General-principles-behind-problems-similar-to-%22Reverse-Pairs%22
+
+
+// merge sort idea
+// the tricky part is when merging the position of the number will change
+
+class Solution {
+public:
+    typedef pair<int, int> P; // first is val, second is orginal index
+    void merge(vector<P>& vec, int start, int end, vector<int>& counts)
+    {
+        if (start >= end)
+            return;
+        
+        int mid = (start+ end)/2;
+        merge(vec, start, mid, counts);
+        merge(vec, mid+1, end, counts);
+        
+        vector<P> result;
+        int i = start, j = mid+1;
+        int count = 0;
+        while (i <= mid && j <= end)
+        {
+            if (vec[i].first > vec[j].first)
+            {
+                count++;
+                result.push_back(vec[j++]);
+            }
+            else
+            {
+                counts[vec[i].second] += count;
+                result.push_back(vec[i++]);
+            }
+        }
+        
+        while (i <= mid)
+        {
+            counts[vec[i].second] += count;
+            result.push_back(vec[i++]);
+        }
+        
+        while (j <= end)
+            result.push_back(vec[j++]);
+             
+        for (auto n : result)
+            vec[start++] = n;
+    }
+    
+    vector<int> countSmaller(vector<int>& nums) {
+        vector<int> result(nums.size());
+        
+        vector<P> vec;
+        for (int i = 0; i < nums.size(); i++)
+            vec.push_back(P(nums[i], i));
+        
+        merge(vec, 0, int(nums.size()-1), result);
+        
+        return result;
+    }
+};
+

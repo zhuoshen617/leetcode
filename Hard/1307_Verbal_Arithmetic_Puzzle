@@ -1,0 +1,98 @@
+
+class Solution {
+public:
+    vector<string> allWords;
+    unordered_map<char, int> hashmap;
+    vector<bool> used;
+    
+    bool search(int wordIdx, int charIdx, int sum, int target, int maxLen)
+    {
+        if (charIdx == maxLen)
+            return sum == target;
+        
+        // when iterated all left words, let's check if we can find a target for running sum.
+        if (wordIdx == allWords.size() - 1)
+        {
+            if (charIdx >= allWords.back().size())
+            {
+                return false;
+            }
+            if (hashmap.count(allWords.back()[charIdx]))
+            {
+                if (charIdx == allWords[wordIdx].size() - 1 && hashmap[allWords.back()[charIdx]] == 0)
+                    return false;
+                
+                target = target + hashmap[allWords.back()[charIdx]] * pow(10, charIdx);
+                if (target == sum % int(pow(10, charIdx+1)))
+                    return search(0, charIdx+1, sum, target, maxLen);
+                else
+                    return false;
+            }
+            else
+            {
+                int targetNum = sum % int(pow(10, charIdx+1)) / int(pow(10, charIdx));
+                
+                if (used[targetNum])
+                    return false;
+                
+                used[targetNum] = true;
+                hashmap[allWords.back()[charIdx]] = targetNum;
+               
+                if (search(wordIdx, charIdx, sum, target, maxLen))
+                    return true;
+                
+                used[targetNum] = false;
+                hashmap.erase(allWords.back()[charIdx]);
+                return false;
+            }
+        }
+        
+        if (charIdx < allWords[wordIdx].size())
+        {
+            if (hashmap.count(allWords[wordIdx][charIdx]))
+            {
+                if (charIdx == allWords[wordIdx].size() - 1 && hashmap[allWords[wordIdx][charIdx]] == 0)
+                    return false;
+                
+                sum = sum + hashmap[allWords[wordIdx][charIdx]] * pow(10, charIdx);
+                return search(wordIdx+1, charIdx, sum, target, maxLen);
+            }
+            else
+            {
+                for (int i = 0; i < used.size(); i++)
+                {
+                    if (!used[i])
+                    {
+                        used[i] = true;
+                        hashmap[allWords[wordIdx][charIdx]] = i;
+                        
+                        if (search(wordIdx, charIdx, sum, target, maxLen))
+                            return true;
+                                
+                        used[i] = false;
+                        hashmap.erase(allWords[wordIdx][charIdx]);
+                    }
+                }
+                
+                return false;
+            }
+        }
+        
+        return search(wordIdx+1, charIdx, sum, target, maxLen);
+    }
+    bool isSolvable(vector<string>& words, string result) {
+        for (auto & w : words)
+        {
+            reverse(w.begin(), w.end());
+        }
+        for (int i = 0; i < 10; i++)
+        {
+            used.push_back(false);
+        }
+        allWords = words;
+        reverse(result.begin(), result.end());
+        allWords.push_back(result);
+        
+        return search(0, 0, 0, 0, result.size());
+    }
+};
