@@ -1,0 +1,65 @@
+
+class TrieNode {
+public:
+    vector<TrieNode *> neighbors;
+    bool isEnd;
+    // Initialize your data structure here.
+    TrieNode() {
+        isEnd = false;
+        neighbors.resize(26);
+    }
+};
+
+class Trie {
+public:
+    Trie() {
+        root = new TrieNode();
+    }
+
+    // Inserts a word into the trie.
+    void insert(string word) {
+
+        TrieNode * node = root;
+        for (int i = 0; i < word.size(); i++)
+        {
+            if (node->neighbors[word[i] - 'a'] == NULL)
+                node->neighbors[word[i] - 'a'] = new TrieNode();
+            node = node->neighbors[word[i] - 'a'];
+        }
+        node->isEnd = true;
+    }
+
+    // Returns if the word is in the trie.
+    bool search(string word)
+    {
+        TrieNode * node = root;
+        for (int i = 0; i < word.size(); i++)
+        {
+            if (node->neighbors[word[i] - 'a'] == NULL)
+                return false;
+            else
+                node = node->neighbors[word[i] - 'a'];
+        }
+
+        return node->isEnd;
+
+    }
+
+    // Returns if there is any word in the trie
+    // that starts with the given prefix.
+    bool startsWith(string prefix) {
+        TrieNode * node = root;
+        for (int i = 0; i < prefix.size(); i++)
+        {
+            if (node->neighbors[prefix[i] - 'a'] == NULL)
+                return false;
+            else
+                node = node->neighbors[prefix[i] - 'a'];
+        }
+
+        return true;
+    }
+
+private:
+    TrieNode* root;
+};

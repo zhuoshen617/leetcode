@@ -1,0 +1,57 @@
+
+class Solution {
+public:
+    int minimumSemesters(int N, vector<vector<int>>& relations) {
+        unordered_map<int, unordered_set<int>> mapCourseToPre;
+        unordered_map<int, vector<int>> mapPreToCourse;
+    
+        for (int i = 0; i < relations.size(); i++)
+        {
+            mapCourseToPre[relations[i][1]].insert(relations[i][0]);
+            mapPreToCourse[relations[i][0]].push_back(relations[i][1]);
+        }
+        
+        int count = 0;
+        vector<int> visited;
+        queue<int> q;
+        for (int i = 1; i <= N; i++)
+        {
+            if (mapCourseToPre.count(i) == 0)
+            {
+                q.push(i);
+                visited.push_back(i);
+            }
+        }
+        
+        while (q.size())
+        {
+            int size = q.size();
+            for (int k = 0; k < size; k++)
+            {
+                int preC = q.front();
+                q.pop();
+                if (mapPreToCourse.count(preC) == 0)
+                    continue;
+                
+                for (int i = 0; i < mapPreToCourse[preC].size(); i++)
+                {
+                    int c = mapPreToCourse[preC][i];
+                    mapCourseToPre[c].erase(preC);
+                    
+                    if (mapCourseToPre[c].size() == 0)
+                    {
+                        q.push(c);
+                        visited.push_back(c);
+                    }
+                }
+            }
+            
+            count++;
+        }
+        
+        if (visited.size() == N)
+            return count;
+        else
+            return -1;
+    }
+};

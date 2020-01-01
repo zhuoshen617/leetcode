@@ -1,0 +1,26 @@
+class MyCalendarThree {
+public:
+    
+    map<int, int> m;  // time => numOfEvent from this time
+    MyCalendarThree() {
+        
+    }
+    
+    int book(int start, int end) {
+        // number of event increases at start time
+        m[start]++;
+        // number of event decreases at end time
+        m[end]--;
+        
+        
+        int result = 0;
+        int count = 0;
+        for (auto p : m)
+        {
+            count += p.second;
+            result = max(result, count);
+        }
+     
+        return result;
+    }
+};

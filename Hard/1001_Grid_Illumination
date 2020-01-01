@@ -1,0 +1,62 @@
+
+class Solution {
+public:
+    int getDiag1(int r, int c)
+    {
+        return c-r;
+    }
+    int getDiag2(int r, int c, int N)
+    {
+        return (N-1)-c-r;
+    }
+    void turnOff(multiset<int> & rowMs, multiset<int> & colMs, multiset<int> & diagonalMs, multiset<int> & diagonal2Ms, int r, int c, int N)
+    {
+        rowMs.erase(rowMs.find(r));
+        colMs.erase(colMs.find(c));
+        diagonalMs.erase(diagonalMs.find(getDiag1(r, c)));
+        diagonal2Ms.erase(diagonal2Ms.find(getDiag2(r, c, N)));
+    }
+    
+    vector<int> gridIllumination(int N, vector<vector<int>>& lamps, vector<vector<int>>& queries) {
+        multiset<int> rowMs, colMs, diagonalMs, diagonal2Ms;
+        unordered_map<int,  unordered_set<int>> hashmap;
+        for (auto l : lamps)
+        {
+            int r = l[0], c = l[1];
+            rowMs.insert(r);
+            colMs.insert(c);
+    
+            diagonalMs.insert(getDiag1(r, c));
+            diagonal2Ms.insert(getDiag2(r, c, N));
+            hashmap[r].insert(c);
+        }
+        
+        vector<int> v1({0,0,0,1,1,1,-1,-1,-1});
+        vector<int> v2({1,-1,0,1,-1,0,1,-1,0});
+        vector<int> result;
+        for (auto q : queries)
+        {
+            int r = q[0];
+            int c = q[1];
+            if (rowMs.count(r) || colMs.count(c) || diagonalMs.count(getDiag1(r, c)) || diagonal2Ms.count(getDiag2(r, c, N)))
+                result.push_back(1);
+            else
+                result.push_back(0);
+            
+            for (int i = 0; i < v1.size(); i++)
+            {
+                int nr = v1[i] + r;
+                int nc = v2[i] + c;
+                
+                if (hashmap.count(nr) && hashmap[nr].count(nc))
+                {
+                    hashmap[nr].erase(nc);
+                    turnOff(rowMs, colMs, diagonalMs, diagonal2Ms, nr, nc, N);
+                }
+            }
+        }
+        
+        return result;
+        
+    }
+};
