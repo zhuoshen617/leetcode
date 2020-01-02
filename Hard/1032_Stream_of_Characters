@@ -1,0 +1,70 @@
+
+class TrieNode {
+public:
+    vector<TrieNode *> neighbors;
+    bool isEnd;
+    // Initialize your data structure here.
+    TrieNode() {
+        isEnd = false;
+        neighbors.resize(26);
+    }
+};
+
+class Trie {
+public:
+    Trie() {
+        root = new TrieNode();
+    }
+    
+    TrieNode * getRoot() {
+        return root;
+    }
+
+    // Inserts a word into the trie.
+    void insert(string word) {
+        TrieNode * node = root;
+        for (int i = 0; i < word.size(); i++)
+        {
+            if (node->neighbors[word[i] - 'a'] == NULL)
+                node->neighbors[word[i] - 'a'] = new TrieNode();
+            node = node->neighbors[word[i] - 'a'];
+        }
+        node->isEnd = true;
+    }
+private:
+    TrieNode* root;
+};
+
+class StreamChecker {
+public:
+    Trie trie;
+    queue<TrieNode*> q;
+    StreamChecker(vector<string>& words) {
+        for (auto word : words)
+            trie.insert(word);
+    
+        q.push(trie.getRoot());
+    }
+    
+    bool query(char letter) {
+        bool result = false;
+       
+        size_t size = q.size();
+        for (int k = 0; k < size; k++)
+        {
+            auto node = q.front();
+            q.pop();
+
+            if (node->neighbors[letter - 'a'] == NULL)
+                continue;
+            else
+                q.push(node->neighbors[letter - 'a']);
+
+            if (node->neighbors[letter - 'a']->isEnd)
+                result = true;
+        }
+        
+        q.push(trie.getRoot());
+        return result;
+    }
+};

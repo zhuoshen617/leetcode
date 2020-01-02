@@ -1,0 +1,71 @@
+// backtracking 
+// hamiltonian cycle problem
+
+
+typedef pair<int, int> P;
+
+class Solution {
+public:
+    bool isValid(int x, int y, vector<vector<int>>&grid)
+    {
+        if (x < 0 || x >= grid.size() || y < 0 || y >= grid[0].size())
+            return false;
+        
+        if (grid[x][y] == -1)
+            return false;
+        
+        if (grid[x][y] == 3)
+            return false;
+        
+        return true;
+    }
+    
+    void dfs(vector<vector<int>>&grid, P current, P end, int visited, int numOfEmpty, int & count)
+    {
+        if (visited == numOfEmpty && current == end)
+        {
+            count++;
+            return;
+        }
+        
+        vector<int> v1({0,1,0,-1});
+        vector<int> v2({1,0,-1,0});
+        
+        for (int i = 0; i < v1.size(); i++)
+        {
+            int nx = current.first + v1[i];
+            int ny = current.second + v2[i];
+            
+            if (!isValid(nx, ny, grid))
+                continue;
+            
+            grid[nx][ny] = 3;
+            dfs(grid, P(nx, ny), end, visited+1, numOfEmpty, count);
+            grid[nx][ny] = 0;
+        }
+            
+    }
+    
+    int uniquePathsIII(vector<vector<int>>& grid) {
+        int m = grid.size(), n = grid[0].size();
+        P start, end;
+        int numOfEmpty = 1;
+        for (int i = 0; i < m; i++)
+        {
+            for (int j = 0; j < n; j++)
+            {
+                if (grid[i][j] == 1)
+                    start = P(i, j);
+                else if (grid[i][j] == 2)
+                    end = P(i, j);
+                else if (grid[i][j] == 0)
+                    numOfEmpty++;
+            }
+        }
+        
+        int count = 0;
+        grid[start.first][start.second] = 3;
+        dfs(grid, start, end, 0, numOfEmpty, count);
+        return count;
+    }
+};
