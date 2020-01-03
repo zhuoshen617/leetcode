@@ -1,0 +1,51 @@
+// classic text book question.
+
+// Binary tree's left child is first child of N-ary. 
+// Binary tree's right child is next child of N-ary.
+
+// left child right neighbor
+
+class Codec {
+public:
+
+    TreeNode* encodeHelper(const vector<Node*> &vec, int start)
+    {
+        if (start >= vec.size())
+            return NULL;
+        
+        TreeNode * treeNode = new TreeNode(vec[start]->val);
+        treeNode->left = encodeHelper(vec[start]->children, 0);
+        treeNode->right = encodeHelper(vec, start+1);
+        
+        return treeNode;
+        
+    }
+    // Encodes an n-ary tree to a binary tree.
+    TreeNode* encode(Node* root) {
+        if (root == NULL)
+            return NULL;
+        vector<Node*> vec({root});
+        return encodeHelper(vec, 0);
+    }
+
+    vector<Node*> decodeHelper(TreeNode* root)
+    {
+        if (root == NULL)
+            return vector<Node*>();
+        
+        
+        vector<Node*> v1 = decodeHelper(root->right);
+        Node * node = new Node(root->val, decodeHelper(root->left));
+        
+        vector<Node*> result({node});
+        result.insert(result.end(), v1.begin(), v1.end());
+        return result;
+    }
+    // Decodes your binary tree to an n-ary tree.
+    Node* decode(TreeNode* root) {
+        if (root == NULL)
+            return NULL;
+        
+       return decodeHelper(root)[0];
+    }
+};
