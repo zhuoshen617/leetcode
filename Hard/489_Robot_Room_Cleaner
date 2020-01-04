@@ -1,0 +1,105 @@
+
+const int UP = 1;
+const int DOWN = 2;
+const int LEFT = 3;
+const int RIGHT = 4;
+
+typedef pair<int, int> P;
+class Solution {
+public:
+    
+    void dfs(Robot & robot, int x, int y, set<P> & visited, int dir)
+    {
+        if (visited.count(P(x, y)))
+        {
+            robot.turnLeft();
+            robot.turnLeft();
+            robot.move();
+            return;
+        }
+        visited.insert(P(x, y));
+        robot.clean();
+       
+        if (dir == UP)
+            ;
+        else if (dir == DOWN)
+        {
+            robot.turnLeft();
+            robot.turnLeft();
+        }
+        else if (dir == LEFT)
+            robot.turnRight();
+        else
+            robot.turnLeft();
+        
+        //go up
+        if (robot.move())
+        {
+            dfs(robot, x-1, y, visited, UP);
+            // facing down now
+            robot.turnRight();
+        }
+        else
+        {
+            robot.turnLeft();
+        }
+        
+        //go left
+        if (robot.move())
+        {
+            dfs(robot, x, y-1, visited, LEFT);
+            // facing right now
+            robot.turnRight();
+        }
+        else
+        {
+            robot.turnLeft();
+        }
+        
+        //go down
+        if (robot.move())
+        {
+            dfs(robot, x+1, y, visited, DOWN);
+            // facing up now
+            robot.turnRight();
+        }
+        else
+        {
+            robot.turnLeft();
+        }
+        
+        //go right
+        if (robot.move())
+        {
+            dfs(robot, x, y+1, visited, RIGHT);
+            // facing left now
+            robot.turnRight();
+        }
+        else
+        {
+            robot.turnLeft();
+        }
+        
+        // facing up now
+        
+        if (dir == UP)
+        {
+            robot.turnLeft();
+            robot.turnLeft();
+        }
+        else if (dir == DOWN)
+            ;
+        else if (dir == LEFT)
+            robot.turnRight();
+        else
+            robot.turnLeft();
+        
+        
+        robot.move();
+    }
+    
+    void cleanRoom(Robot& robot) {
+        set<P> visited;
+        dfs(robot, 0, 0, visited, UP);
+    }
+};
