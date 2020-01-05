@@ -1,0 +1,88 @@
+// Parse and recursive calls as you go
+
+class Solution {
+public:
+    bool calc(vector<bool> vec, int op)
+    {
+        if (op == 1)
+            return vec[0];
+        else if (op == 2)
+            return !vec[0];
+        
+        if (op == 3)
+        {
+            for (auto v : vec)
+            {
+                if (!v)
+                    return false;
+            }
+            
+            return true;
+        }
+        
+        for (auto v : vec)
+        {
+            if (v)
+                return true;
+        }
+        
+        return false;
+    }
+    bool helper(string str, int &start, int op)
+    {
+        if (start == str.size())
+            return true;
+        
+        vector<bool> result;
+        while (start < str.size())
+        {
+            if (str[start] == '!')
+            {
+                start++;
+                start++; // skip (
+                
+                result.push_back(helper(str, start, 2));
+            }
+            else if (str[start] == '|')
+            {
+                start++;
+                start++; // skip (
+                
+                result.push_back(helper(str, start, 4));
+            }
+            else if (str[start] == '&')
+            {
+                start++;
+                start++; // skip (
+                
+                result.push_back(helper(str, start, 3));
+            }
+            else if (str[start] == ')')
+            {
+                start++;
+                return calc(result, op);
+            }
+            else if (str[start] == ',')
+            {
+                start++;
+            }
+            else if (str[start] == 't')
+            {
+                start++;
+                result.push_back(true);
+            }
+            else
+            {
+                start++;
+                result.push_back(false);
+            }
+        }
+        
+        return calc(result, op);
+    }
+    
+    bool parseBoolExpr(string expression) {
+        int start = 0;
+        return helper(expression, start, 1);
+    }
+};

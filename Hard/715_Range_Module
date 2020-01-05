@@ -1,0 +1,110 @@
+
+class RangeModule {
+public:
+    typedef pair<int, int> P;
+    map<int, P> mapEnd;
+    RangeModule() {
+        
+    }
+    
+    void addRange(int left, int right) {
+        auto first = mapEnd.lower_bound(left);
+        if (mapEnd.end() == first || first->second.first > right)
+        {
+            mapEnd[right] = P(left, right);
+            return;
+        }
+        
+        // remove first range and prepae a new range
+        vector<int> toRemove({first->second.second});
+        auto newRange = P(min(left, first->second.first), max(right, first->second.second));
+    
+        first++;
+        while (first != mapEnd.end())
+        {
+            if (newRange.second < first->second.first)
+            {
+                break;
+            }
+            else if (newRange.second > first->second.second)
+            {
+                toRemove.push_back(first->second.second);
+                first++;
+            }
+            else
+            {
+                newRange.second = first->second.second;
+                toRemove.push_back(first->second.second);
+                break;
+            }
+        }
+        
+        for (int n : toRemove)
+            mapEnd.erase(n);
+        
+        mapEnd[newRange.second] = newRange;
+    }
+    
+    bool queryRange(int left, int right) {
+        auto first = mapEnd.lower_bound(left);
+        if (mapEnd.end() == first)
+            return false;
+        
+        if (first->second.first <= left && right <= first->second.second)
+            return true;
+        
+        return false;
+    }
+    
+    void removeRange(int left, int right) {
+        auto first = mapEnd.upper_bound(left);
+        if (mapEnd.end() == first || first->second.first > right)
+            return;
+        
+        if (right <= first->second.second)
+        {
+            if (first->second.first < left) {
+                auto newP = P(first->second.first, left);
+                mapEnd[left] = newP;
+            }
+            if (right < first->second.second)
+                mapEnd[first->second.second].first = right;
+            else
+                mapEnd.erase(right);
+            return;
+        }
+        
+    
+        vector<int> toRemove;
+        while (first != mapEnd.end())
+        {
+            if (first->second.first > right)
+                break;
+            else if (right >= first->second.second)
+            {
+                if (left > first->second.first)
+                    mapEnd[left] = P(first->second.first, left);
+                
+                toRemove.push_back(first->second.second);
+                first++;
+            }
+            else
+            {
+                mapEnd[first->first].first = right;
+                break;
+            }
+        }
+        
+        for (int n : toRemove)
+            mapEnd.erase(n);
+    }
+    
+    void print()
+    {
+        for(auto p : mapEnd)
+        {
+            cout << p.first << "("<< p.second.first << "," << p.second.second << ")" << ",";
+        }
+        cout << endl;
+    }
+};
