@@ -1,0 +1,37 @@
+// if K == 1, then we can just rotate the string
+
+// if K > 1, we can swap any two adjacent characters, which means we can buble sort the array.
+
+/*
+we want to swap a and c
+bacdb // initial
+acdbb // pop first b to the end
+dbbca // first pop S[2]=c, then pop S[1]=a
+bbcad // pop S[3] = d
+bcadb // pop S[4] = b, a and c are swapped!
+*/
+
+class Solution {
+public:
+    string orderlyQueue(string S, int K) {
+        if (K > 1)
+        {
+            sort(S.begin(), S.end());
+            return S;
+        }
+        
+        string result = S;
+        int i = 1;
+        while (i < S.size())
+        {
+            S = S.substr(1) + S[0];
+            
+            if (strcmp(result.c_str(), S.c_str()) > 0)
+                result = S;
+            
+            i++;
+        }
+        
+        return result;
+    }
+};

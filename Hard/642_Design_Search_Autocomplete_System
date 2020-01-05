@@ -1,0 +1,148 @@
+//typical trie implememtations
+
+
+class TrieNode {
+public:
+    vector<TrieNode *> neighbors;
+    unordered_set<string> tops;
+    bool isEnd;
+    // Initialize your data structure here.
+    TrieNode() {
+        isEnd = false;
+        neighbors.resize(256);
+    }
+};
+
+class Obj {
+public:
+    string str;
+    int count;
+    Obj(string s, int c): str(s), count(c) {}
+    bool operator<(Obj o) const {
+        if (count == o.count)
+            return strcmp(str.c_str(), o.str.c_str()) < 0;
+        
+        return count > o.count;
+    }
+};
+
+class Trie {
+public:
+    Trie() {
+        root = new TrieNode();
+    }
+
+    // Inserts a word into the trie.
+    void insert(string word) {
+
+        TrieNode * node = root;
+       
+        for (int i = 0; i < word.size(); i++)
+        {
+            if (node->neighbors[word[i]] == NULL)
+                node->neighbors[word[i]] = new TrieNode();
+            node = node->neighbors[word[i]];
+        
+            node->tops.insert(word);
+        }
+        node->isEnd = true;
+    }
+
+    // Returns if the word is in the trie.
+    bool search(string word)
+    {
+        TrieNode * node = root;
+        for (int i = 0; i < word.size(); i++)
+        {
+            if (node->neighbors[word[i] - 'a'] == NULL)
+                return false;
+            else
+                node = node->neighbors[word[i] - 'a'];
+        }
+
+        return node->isEnd;
+
+    }
+    
+    TrieNode * getRoot() {
+        return root;
+    }
+    
+    // Returns if there is any word in the trie
+    // that starts with the given prefix.
+    bool startsWith(string prefix) {
+        TrieNode * node = root;
+        for (int i = 0; i < prefix.size(); i++)
+        {
+            if (node->neighbors[prefix[i] - 'a'] == NULL)
+                return false;
+            else
+                node = node->neighbors[prefix[i] - 'a'];
+        }
+
+        return true;
+    }
+
+private:
+    TrieNode* root;
+};
+
+
+class AutocompleteSystem {
+public:
+    Trie trie;
+    TrieNode * currentNode;
+    string currentSearchTerm;
+    unordered_map<string, int> hashmap;
+    AutocompleteSystem(vector<string>& sentences, vector<int>& times) {
+        for (int i = 0; i < times.size(); i++)
+        {
+            trie.insert(sentences[i]);
+            hashmap[sentences[i]] = times[i];
+        }
+        
+        currentNode = trie.getRoot();
+    }
+    
+    
+
+    vector<string> input(char c) {
+        
+        if (c == '#')
+        {
+            currentNode = trie.getRoot();
+            trie.insert(currentSearchTerm);
+            hashmap[currentSearchTerm]++;
+            currentSearchTerm = "";
+            return vector<string>();
+        }
+            
+        currentSearchTerm += c;
+        
+        if (currentNode == NULL || currentNode->neighbors[c] == NULL)
+        {
+            currentNode = NULL;
+            return vector<string>();
+        }
+        
+        currentNode = currentNode->neighbors[c];
+        
+        set<Obj> s;
+        for (auto w : currentNode->tops)
+        {
+            int count = hashmap[w];
+            s.insert(Obj(w, count));
+            
+            if (s.size() > 3)
+                s.erase(--s.end());
+        }
+        
+        vector<string> result;
+        
+        for (auto o : s)
+            result.push_back(o.str);
+        
+        return result;
+
+    }
+};
