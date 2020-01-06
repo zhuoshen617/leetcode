@@ -16,6 +16,10 @@ public:
         root = new TrieNode();
     }
 
+    TrieNode * getRoot() {
+        return root;
+    }
+
     // Inserts a word into the trie.
     void insert(string word) {
 
