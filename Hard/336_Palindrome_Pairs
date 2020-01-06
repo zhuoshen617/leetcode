@@ -1,0 +1,100 @@
+// for each string, find the palidrom prefix and suffix
+// then look if we have a match in the rest of strings
+
+
+class Solution {
+public:
+    vector<vector<int>> findPos(string s)
+    {
+        int n = s.size();
+        
+
+        vector<vector<bool>> dp(n, vector<bool>(n, false));
+
+      
+        for (int i = 0; i < n; i++)
+        {
+            dp[i][i] = true;
+            
+        }
+        for (int i = 0; i+1 < n; i++)
+        {
+            if (s[i] == s[i+1])
+            {
+                dp[i][i+1] = true;
+               
+            }
+        }
+
+        for (int len = 3; len <= n; len++)
+        {
+            for(int i = 0; i < n && i + len - 1 < n; i++)
+            {
+                if (s[i] == s[i+len-1] && dp[i+1][i+len-2])
+                {
+                    dp[i][i+len-1] = true;
+                }
+            }
+        }
+        
+        vector<vector<int>> result(2);
+        
+        for (int i = 0; i < n; i++)
+        {
+            if (dp[i][n-1])
+                result[1].push_back(i);
+            
+            if (dp[0][i])
+                result[0].push_back(i);
+        }
+        
+        return result;
+    }
+    
+    
+    vector<vector<int>> palindromePairs(vector<string>& words) {
+        unordered_map<string, int> hashmap;
+        for (int i = 0; i < words.size(); i++)
+        {
+            hashmap[words[i]] = i;
+        }
+        
+        vector<vector<int>> result;
+        for (int i = 0; i < words.size(); i++)
+        {
+            hashmap.erase(words[i]);
+            string str = words[i];
+            reverse(str.begin(), str.end());
+                           
+            if (hashmap.count(str))
+               result.push_back(vector<int>({i, hashmap[str]}));
+            
+            vector<vector<int>> pos = findPos(words[i]);
+            for (int n : pos[1])
+            {
+                str = words[i].substr(0, n);
+                
+                reverse(str.begin(), str.end());
+                
+                if (hashmap.count(str))
+                    result.push_back(vector<int>({i, hashmap[str]}));
+            }
+            
+            for (int n : pos[0])
+            {
+                str = words[i].substr(n+1);
+                
+                reverse(str.begin(), str.end());
+                
+                if (hashmap.count(str))
+                    result.push_back(vector<int>({hashmap[str], i}));
+            }
+            
+            
+            hashmap[words[i]] = i;
+        }
+        return result;
+    }
+    
+    
+};

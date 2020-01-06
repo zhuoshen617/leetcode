@@ -1,0 +1,180 @@
+// there is a test case proved greedy solution is wrong
+// RRWWRRBBRR -> RRWWRRBBR[W]R -> RRWWRRBB[B]RWR -> RRWWRRRWR -> RRWWWR -> RRR -> empty
+
+// dfs for all possible solution space
+class Solution {
+public:
+     unordered_map<string, unordered_map<string, int> > hashmap;
+     string removeConsecutive(string board) {
+        int i = 0, j = 0;
+        for (; j < board.length(); ++j) {
+            if (board[j] == board[i])
+                continue;
+            
+            if (j - i >= 3)
+                return removeConsecutive(board.substr(0, i) + board.substr(j));
+            else
+                i = j;
+        }
+         
+        if (j - i >= 3)
+            return removeConsecutive(board.substr(0, i) + board.substr(j));
+        
+        return board;
+    }
+    
+    
+    int helper(string board, string hand)
+    {
+        if (hashmap.count(board) && hashmap[board][hand])
+            return hashmap[board][hand];
+            
+        board = removeConsecutive(board);
+        if (board.size() == 0)
+            return 0;
+        
+        if (hand.size() == 0)
+            return -1;
+
+        int result = hand.size() + 1;
+        for (int i = 0; i <= board.size(); i++)
+        {
+            for (int j = 0; j < hand.size(); j++)
+            {
+                if (j > 0 && hand[j] == hand[j-1])
+                    continue;
+                
+                // this is the greedy part, only insert at place with same color
+                if (i > 0 && thisHand[j] != thisBoard[i-1])
+                    continue;
+
+                string newBoard = board.substr(0, i) + hand[j] + board.substr(i);
+                string newHand = hand.substr(0, j) + hand.substr(j+1);
+                int count = helper(newBoard, newHand);
+                if (count > -1)
+                    result = min(result, 1 + helper(newBoard, newHand));
+            }
+        }
+        
+        
+        if (result == hand.size() + 1)
+            hashmap[board][hand] = -1;
+        else
+            hashmap[board][hand] = result;
+        
+        return hashmap[board][hand];
+        
+    }
+    
+    int findMinStep(string board, string hand) {
+        unordered_set<char> boardHashset;
+        for (char c: board)
+            boardHashset.insert(c);
+        
+        string reducedHand;
+        for (char c: hand)
+        {
+            if (boardHashset.count(c))
+                reducedHand.push_back(c);
+        }
+        
+        vector<bool> used(reducedHand.size(), false);
+        sort(hand.begin(), hand.end());
+        return helper(board, reducedHand);
+    }
+};
+
+
+// BFS solution for counting number of steps
+
+typedef pair<string, string> P;
+class Solution {
+public:
+     string removeConsecutive(string board) {
+        int i = 0, j = 0;
+        for (; j < board.length(); ++j) {
+            if (board[j] == board[i])
+                continue;
+            
+            if (j - i >= 3)
+                return removeConsecutive(board.substr(0, i) + board.substr(j));
+            else
+                i = j;
+        }
+         
+        if (j - i >= 3)
+            return removeConsecutive(board.substr(0, i) + board.substr(j));
+        
+        return board;
+    }
+    
+    
+    int helper(string board, string hand)
+    {
+        queue<P> q;
+        q.push(P(board, hand));
+        unordered_map<string, unordered_set<string> > hashmap;
+        hashmap[board].insert(hand);
+        int count = 0;
+        while (q.size())
+        {
+            size_t size = q.size();
+            //cout << count << "q.size()" << q.size() << endl;
+            for (int k = 0; k < size; k++)
+            {
+                auto p = q.front();
+                q.pop();
+                
+                if (p.first.size() == 0)
+                    return count;
+                string thisBoard = p.first;
+                string thisHand = p.second;
+               for (int i = 0; i <= thisBoard.size(); i++)
+               {
+                   for (int j = 0; j < thisHand.size(); j++)
+                   {
+                       if (j > 0 && thisHand[j] == thisHand[j-1])
+                           continue;
+
+                       if (i > 0 && thisHand[j] != thisBoard[i-1])
+                           continue;
+                       
+                       string newBoard = removeConsecutive(thisBoard.substr(0, i) + thisHand[j] + thisBoard.substr(i));
+                       string newHand = thisHand.substr(0, j) + thisHand.substr(j+1);
+                       
+                       if (p.second.size() == 0)
+                            continue;
+                       
+                       if (hashmap.count(newBoard) == 0 || hashmap[newBoard].count(newHand) == 0)
+                       {
+                           q.push(P(newBoard, newHand));
+                           hashmap[board].insert(newHand);
+                       }
+                   }
+            
+               }
+            }
+            
+            count++;
+        }
+        
+        return -1;
+    }
+    
+    int findMinStep(string board, string hand) {
+        unordered_set<char> boardHashset;
+        for (char c: board)
+            boardHashset.insert(c);
+        
+        string reducedHand;
+        for (char c: hand)
+        {
+            if (boardHashset.count(c))
+                reducedHand.push_back(c);
+        }
+        
+        vector<bool> used(reducedHand.size(), false);
+        sort(hand.begin(), hand.end());
+        return helper(board, reducedHand);
+    }
+};

@@ -1,0 +1,69 @@
+// use a heap to keey track of list with smallest first element
+// then use two pointers over the sorted arrays
+
+
+class Obj {
+public:
+    int idx;
+    int pos;
+    vector<int> vec;
+    Obj(int i, int p, vector<int> v) : idx(i), pos(p), vec(v) {}
+    bool operator<(Obj o) const
+    {
+        return vec[pos] < o.vec[o.pos];
+    }
+};
+typedef pair<int, int> P;
+class Solution {
+public:
+    vector<int> smallestRange(vector<vector<int>>& nums) {
+        multiset<Obj> s;
+        for (int i = 0; i < nums.size(); i++)
+        {
+            if (nums[i].size() > 0)
+                s.insert(Obj(i, 0, nums[i]));
+        }
+        
+        size_t k = nums.size();
+        unordered_map<int, int> hashmap;
+        vector<P> vec;
+        vector<int> result({0,0});
+        int i = -1, j = 0;
+        int minSize = INT_MAX;
+        while(s.size())
+        {
+            auto o = *s.begin();
+            vec.push_back(P(o.vec[o.pos], o.idx));
+            hashmap[o.idx]++;
+            
+            s.erase(s.begin());
+            if (o.pos < o.vec.size() - 1)
+            {
+                o.pos++;
+                s.insert(o);
+            }
+            
+            i++;
+            while (hashmap.size() == k)
+            {
+                if (minSize > vec[i].first-vec[j].first)
+                {
+                    minSize = vec[i].first-vec[j].first;
+                    result[0] = vec[j].first;
+                    result[1] = vec[i].first;
+                }
+                
+                
+                hashmap[vec[j].second]--;
+                if (hashmap[vec[j].second] == 0)
+                    hashmap.erase(vec[j].second);
+                
+                j++;
+            }
+            
+            
+        }
+        
+        return result;
+    }
+};
