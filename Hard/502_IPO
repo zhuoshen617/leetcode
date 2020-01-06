@@ -1,0 +1,43 @@
+// greedy solution
+// divided the project into two groups
+// a group can afford, another cannot
+// every time pick the highest profitable project from first affordable group and check if any project are unlokcked if so put in the affordable group and pick again
+// note we dont need to reduce the capital
+
+
+typedef pair<int, int> P;
+class Solution {
+public:
+    int findMaximizedCapital(int k, int W, vector<int>& Profits, vector<int>& Capital) {
+        multiset<int> canAfford;
+        multimap<int, int> cannotAfford;
+        for (int i = 0; i< Profits.size(); i++)
+        {
+            if (Capital[i] <= W)
+                canAfford.insert(Profits[i]); // profit
+            else
+                cannotAfford.insert(P(Capital[i], i)); // required captial => index
+        }
+        
+        while (k && canAfford.size())
+        {
+            auto netProfit = *(--canAfford.end());
+            canAfford.erase(--canAfford.end());
+            
+            W += netProfit;
+            // check if we unlock any more projects
+            while (cannotAfford.size())
+            {
+                auto p = *cannotAfford.begin();
+                if (W < p.first)
+                    break;
+                
+                cannotAfford.erase(cannotAfford.begin());
+                canAfford.insert(Profits[p.second]);
+            }
+            k--;
+        }
+        
+        return W;
+    }
+};
