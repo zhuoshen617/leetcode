@@ -1,7 +1,6 @@
 // use a heap to keey track of list with smallest first element
 // then use two pointers over the sorted arrays
 
-
 class Obj {
 public:
     int idx;
