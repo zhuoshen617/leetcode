@@ -1,0 +1,83 @@
+// Use trie to solve because the longest common prefix matters
+// edge case 1: ending char matters
+// edge case 2: two string of different length won't collide
+
+class TrieNode {
+public:
+    vector<TrieNode *> neighbors;
+    unordered_map<int,int> hashmap;
+    bool isEnd;
+    // Initialize your data structure here.
+    TrieNode() {
+        isEnd = false;
+        neighbors.resize(26);
+    }
+};
+
+class Trie {
+public:
+    Trie() {
+        root = new TrieNode();
+    }
+
+    TrieNode * getRoot() {
+        return root;
+    }
+    
+    // Inserts a word into the trie.
+    void insert(string word) {
+
+        TrieNode * node = root;
+        for (int i = 0; i < word.size(); i++)
+        {
+            if (node->neighbors[word[i] - 'a'] == NULL)
+                node->neighbors[word[i] - 'a'] = new TrieNode();
+            
+            node = node->neighbors[word[i] - 'a'];
+            node->hashmap[word.size()]++;
+        }
+        node->isEnd = true;
+    }
+    
+private:
+    TrieNode* root;
+};
+
+class Solution {
+public:
+    Trie trie;
+    vector<string> wordsAbbreviation(vector<string>& dict) {
+        for (auto str : dict)
+            trie.insert(str.back() + str);
+        
+        vector<string> result;
+        
+        for (auto word : dict)
+        {
+            word = word.back() + word;
+            TrieNode * node = trie.getRoot();
+            int i = 0;
+            for (; i < word.size(); i++)
+            {
+               node = node->neighbors[word[i] - 'a'];
+               if (node->hashmap[word.size()] == 1)
+                   break;
+            }
+               
+            i = max(i, 1);
+            
+            string abbr;
+            if(i == word.size() - 1)
+                abbr = word;
+            else
+                abbr = word.substr(0, i+1) + to_string(word.size()-2-i) + word.back();
+            
+            if (abbr.size() >= word.size())
+                abbr = word;
+            
+            result.push_back(abbr.substr(1));
+        }
+        
+        return result;
+    }
+};
