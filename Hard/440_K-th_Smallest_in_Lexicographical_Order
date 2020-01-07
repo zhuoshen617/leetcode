@@ -1,0 +1,50 @@
+// https://leetcode.com/problems/k-th-smallest-in-lexicographical-order/discuss/92242/ConciseEasy-to-understand-Java-5ms-solution-with-Explaination
+// cannot beat this tree explanation
+
+
+
+class Solution {
+public:
+    int findKthNumber(int n, int k) {
+        int current = 1;
+        k = k-1;
+        
+        while (k > 0)
+        {
+            int gap = calcGap(current, n);
+            if (gap <= k)
+            {
+                current++;
+                k -= gap;
+            }
+            else
+            {
+                current *= 10;
+                k--;
+            }
+        }
+        
+        return current;
+    }
+    
+    // check how many numbers are between (1~2), (11~12)
+    // (20 - 10) + (200 - 100) + (2000 - 1000) + (n - 10...0) 
+    int calcGap(long long current, int n)
+    {
+        long long next = current + 1;
+        int result = 0;
+        int start = 1;
+        while (current <= n)
+        {
+            if (next <= n)
+                result += next - current;
+            else
+                result += n - current + 1;
+            
+            current *= 10;
+            next *= 10;
+        }
+        
+        return result;
+    }
+};

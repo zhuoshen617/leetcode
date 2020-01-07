@@ -1,0 +1,52 @@
+// recusion + memotization
+// one greedy pruning is only need to dial closest left and right char instead of all char positions.
+// we can prove it won't achieve less steps to do so.
+
+
+class Solution {
+public:
+    
+    int helper(string ring, int pos, string key, int start, unordered_map<int, unordered_map<int, int>> & memo)
+    {
+        if (memo.count(pos) && memo[pos].count(start))
+            return memo[pos][start];
+        
+        if (start == key.size())
+            return 0;
+        
+        int result = INT_MAX;
+        size_t size = ring.size();
+        int leftPos = pos, leftStep = 0;
+        int rightPos = pos, rightStep = 0;
+        while (ring[leftPos] != key[start])
+        {
+            leftPos--;
+            leftPos = (size + leftPos) % size;
+            leftStep++;
+        }
+        while (ring[rightPos] != key[start])
+        {
+            rightPos++;
+            rightPos = (size + rightPos)%size;
+            rightStep++;
+        }
+        
+        if (leftPos == rightPos)
+        {
+            result = min(result, min(leftStep, rightStep) + helper(ring, leftPos, key, start+1, memo));
+        }
+        else
+        {
+            result = min(result, rightStep + helper(ring, rightPos, key, start+1, memo));
+            result = min(result, leftStep + helper(ring, leftPos, key, start+1, memo));
+        }
+        
+        memo[pos][start] = result;
+        return result;
+    }
+    
+    int findRotateSteps(string ring, string key) {
+        unordered_map<int, unordered_map<int, int>> memo;
+        return (int)key.size() + helper(ring, 0, key, 0, memo);
+    }
+};

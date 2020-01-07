@@ -1,0 +1,100 @@
+
+// straight forward design using tree structure
+
+vector<string> split(string s, char delimiter)
+{
+    vector<string> result;
+    size_t pos = 0;
+    std::string token;
+    while ((pos = s.find(delimiter)) != std::string::npos) {
+        token = s.substr(0, pos);
+        
+        if (token.size())
+             result.push_back(token);
+        s.erase(0, pos + 1);
+    }
+    if (s.size())
+        result.push_back(s);
+    return result;
+}
+class TreeNode2 {
+public:
+    bool isDir;
+    unordered_map<string, TreeNode2 *> hashmap;
+    string name;
+    string content;
+    TreeNode2(bool isD, string n, string c): isDir(isD), name(n), content(c) {}
+};
+
+class FileSystem {
+public:
+    TreeNode2 * root;
+    FileSystem() {
+        root = new TreeNode2(true, "/", "");
+    }
+    
+    vector<string> ls(string path) {
+        vector<string> pathVec = split(path, '/');
+        
+        vector<string> result;
+        TreeNode2 * node = root;
+        for (auto p : pathVec)
+        {
+            node = node->hashmap[p];
+        }
+        
+        if (node->isDir)
+            for (auto o : node->hashmap)
+                result.push_back(o.second->name);
+        else
+            result.push_back(node->name);
+        
+        sort(result.begin(), result.end());
+        
+        return result;
+    }
+    
+    void mkdir(string path) {
+       vector<string> pathVec = split(path, '/');
+               
+       TreeNode2 * node = root;
+       for (auto p : pathVec)
+       {
+           if (node->hashmap.count(p) == 0)
+               node->hashmap[p] = new TreeNode2(true, p, "");
+           
+           node = node->hashmap[p];
+       }
+        
+    }
+    
+    void addContentToFile(string filePath, string content) {
+        vector<string> pathVec = split(filePath, '/');
+                      
+      TreeNode2 * node = root;
+      for (auto p : pathVec)
+      {
+          if (node->hashmap.count(p) == 0)
+              node->hashmap[p] = new TreeNode2(true, p, "");
+          
+          node = node->hashmap[p];
+      }
+        
+        node->isDir = false;
+        node->content += content;
+        
+    
+    }
+    
+    string readContentFromFile(string filePath) {
+        vector<string> pathVec = split(filePath, '/');
+                        
+        TreeNode2 * node = root;
+        for (auto p : pathVec)
+        {
+            node = node->hashmap[p];
+        }
+        
+        return node->content;
+    }
+};
