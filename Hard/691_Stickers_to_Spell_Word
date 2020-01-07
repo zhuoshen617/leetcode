@@ -1,0 +1,130 @@
+// search with a lot of preprocessing
+// a little optimaziation, we can spell the word in a certian sequence
+// for example you can make sure we always remove the first char in the word
+// this is because the sequence of removing doesn't matter. 
+// the code doesn't have this optimizations.
+
+bool compFunc(string s1, string s2) {
+    return s1.size() > s2.size();
+}
+
+class Solution {
+public:
+    bool hasSuperWord(string superWord, string str)
+    {
+        unordered_map<char, int> hashmap;
+        for (auto c : superWord)
+            hashmap[c]++;
+        
+        for (char c: str)
+        {
+            if (hashmap[c] == 0)
+                return true;
+            
+            hashmap[c]--;
+        }
+        return false;
+    }
+    vector<string> reduce(vector<string> vec)
+    {
+        vector<string> result;
+        for (auto str : vec)
+        {
+            bool found = false;
+            for (auto superWord : result)
+            {
+                if (!hasSuperWord(superWord, str))
+                {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found)
+                result.push_back(str);
+        }
+        return result;
+    }
+    
+    string getWord(unordered_map<char, int> hashmap)
+    {
+        string result;
+        for (auto p : hashmap)
+            result += string(p.second, p.first);
+        
+        sort(result.begin(), result.end());
+        
+        return result;
+    }
+    
+    int helper(vector<string> & stickers, unordered_map<char, int> hashmap, unordered_map<string, int> & memo)
+    {
+        string str = getWord(hashmap);
+       
+        if (memo.count(str))
+            return memo[str];
+        
+        if (hashmap.size() == 0)
+            return 0;
+        
+        int result = INT_MAX;
+        for (int i = 0; i < stickers.size(); i++)
+        {
+            auto oldMap = hashmap;
+            int count = 0;
+            for (char c : stickers[i]) {
+                if (hashmap.count(c))
+                {
+                    hashmap[c]--;
+                    count++;
+                }
+                
+                if (hashmap[c] == 0)
+                    hashmap.erase(c);
+            }
+            
+            if (count == 0)
+                continue;
+            
+            int next = helper(stickers, hashmap, memo);
+            if (next != -1)
+                result = min(result, 1 + next);
+            
+            hashmap = oldMap;
+        }
+        
+        if (result == INT_MAX)
+            return memo[str] = -1;
+        
+        memo[str] = result;
+        return memo[str];
+    }
+    
+    int minStickers(vector<string>& stickers, string target) {
+        unordered_map<char, int> hashmap;
+        for (auto c : target)
+            hashmap[c]++;
+        
+        vector<string> reducedStickers;
+        for (auto s: stickers)
+        {
+            string reduced;
+            for (auto c: s)
+            {
+                if (hashmap.count(c))
+                    reduced += c;
+            }
+            
+            sort(reduced.begin(), reduced.end());
+            if (reduced.size())
+                reducedStickers.push_back(reduced);
+        }
+      
+        sort(reducedStickers.begin(), reducedStickers.end(), compFunc);
+       
+        reducedStickers = reduce(reducedStickers);
+     
+        unordered_map<string, int> memo;
+        return helper(reducedStickers, hashmap, memo);
+    }
+};
+
