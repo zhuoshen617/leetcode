@@ -1,0 +1,107 @@
+// BFS, the state is x+y+keys
+// can you remove the key on the board once pickup? no, everyone can pick this key
+// can you remove the lock on the board once open? no, you dont want to open the lock for others
+
+
+typedef pair<int, int> Cord;
+typedef pair<Cord, string> State;
+class Solution {
+public:
+    bool isValid(int x, int y, int m, int n, vector<string>& grid)
+    {
+        if (x < 0 || x >= m || y < 0 || y >=n)
+            return false;
+        
+        if (grid[x][y] == '#')
+            return false;
+        
+        return true;
+    }
+    
+    bool hasKey(string keys, char key)
+    {
+        for ( auto k : keys)
+        {
+            if (k == key)
+                return true;
+        }
+        
+        return false;
+    }
+    
+    int shortestPathAllKeys(vector<string>& grid) {
+        size_t m = grid.size(), n = grid[0].size();
+        queue<State> q;
+        set<State> visited;
+        int numKeys = 0;
+        for (int i = 0; i < m; i++)
+        {
+            for (int j = 0; j < n; j++)
+            {
+                if (grid[i][j] == '@')
+                {
+                    auto state = State(Cord(i, j), "");
+                    q.push(state);
+                    visited.insert(state);
+                }
+                else if ('a' <= grid[i][j] && grid[i][j] <= 'f')
+                {
+                    numKeys++;
+                }
+            }
+        }
+        
+        vector<int> v1({0,1,-1,0});
+        vector<int> v2({-1,0,0,1});
+        int step = 0;
+        while (q.size())
+        {
+            size_t size = q.size();
+            for (int k = 0; k < size; k++)
+            {
+                auto state = q.front();
+                q.pop();
+             
+                
+                if (numKeys ==  state.second.size())
+                    return step;
+                
+                for (int i = 0; i < 4; i++)
+                {
+                    int nx = state.first.first + v1[i];
+                    int ny = state.first.second + v2[i];
+                    string keys = state.second;
+                    
+                    if (!isValid(nx, ny, m, n, grid))
+                        continue;
+                    
+                    
+                    if ('a' <= grid[nx][ny] && grid[nx][ny] <= 'f' && !hasKey(keys, tolower(grid[nx][ny])))
+                    {
+                        keys += grid[nx][ny];
+                    }
+                    else if ('A' <= grid[nx][ny] && grid[nx][ny] <= 'F')
+                    {
+                        if (!hasKey(keys, tolower(grid[nx][ny])))
+                            continue;
+                    }
+                    
+                    sort(keys.begin(), keys.end());
+                    
+                    auto newState = State(Cord(nx, ny), keys);
+                    
+                    if (visited.count(newState))
+                        continue;
+                   
+                    q.push(newState);
+                    visited.insert(newState);
+                }
+            }
+            
+            step++;
+        }
+        
+        return -1;
+    }
+    
+};
