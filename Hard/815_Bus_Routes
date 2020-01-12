@@ -1,0 +1,84 @@
+// simple BFS, need to keep track of both cities and routes
+// there is no difference if you keep stop as state or route as state
+// A stupid test case that cause TLE without data cleanup
+
+class Solution {
+public:
+    vector<vector<int>> cleanup(vector<vector<int>>& routes)
+    {
+        vector<vector<int>> result;
+        for (int i = 0; i < routes.size(); i++)
+        {
+            unordered_set<int> stops;
+            vector<int> route;
+            for (auto c : routes[i])
+            {
+                if (stops.count(c))
+                    continue;
+                route.push_back(c);
+                stops.insert(c);
+            }
+            
+            result.push_back(route);
+        }
+        return result;
+    }
+    
+    int numBusesToDestination(vector<vector<int>>& routes, int S, int T) {
+        
+        if (S == T)
+            return 0;
+        
+        routes = cleanup(routes);
+        unordered_map<int, vector<int>> c2r;
+        for (int i = 0; i < routes.size(); i++)
+        {
+            for (auto c : routes[i])
+            {
+                c2r[c].push_back(i);
+            }
+        }
+        
+        if (c2r.count(S) == 0 || c2r.count(T) == 0)
+            return -1;
+        
+        queue<int> q;
+        unordered_set<int> visited;
+        for (auto r : c2r[S])
+        {
+            q.push(r);
+            visited.insert(r);
+        }
+        
+        int step = 1;
+        while (q.size())
+        {
+            size_t size = q.size();
+            for (int k = 0; k < size; k++)
+            {
+                int r = q.front();
+                q.pop();
+                
+                for (auto c : routes[r])
+                {
+                    if (c == T)
+                        return step;
+                    
+                    for (auto nr : c2r[c])
+                    {
+                        if (visited.count(nr))
+                            continue;
+                        
+                        q.push(nr);
+                        visited.insert(nr);
+                    }
+                }
+            }
+            
+            step++;
+        }
+                                          
+        return -1;
+        
+    }
+};

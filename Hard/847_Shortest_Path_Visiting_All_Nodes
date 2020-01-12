@@ -1,0 +1,65 @@
+// simple BFS
+
+string removeDup(string vec)
+{
+    unordered_set<char> hs;
+    string result;
+    for (auto c: vec)
+    {
+        if (hs.count(c))
+            continue;
+        
+        result.push_back(c);
+        hs.insert(c);
+    }
+    return result;
+}
+
+typedef pair<int, string> P;
+class Solution {
+public:
+    int shortestPathLength(vector<vector<int>>& graph) {
+        queue<P> q;
+        set<P> visited;
+        
+        size_t numOfNodes = graph.size();
+        for (int i = 0; i < graph.size(); i++)
+        {
+            P p = P(i, string(1, 'a'+i));
+            visited.insert(p);
+            q.push(p);
+        }
+        int step = 0;
+        while (q.size())
+        {
+            int size = q.size();
+            for (int i= 0; i< size; i++)
+            {
+                P p = q.front();
+                q.pop();
+                
+                if (numOfNodes == p.second.size())
+                    return step;
+                
+                for (auto n : graph[p.first])
+                {
+                    string str = p.second + string(1, 'a'+n);
+                    
+                    str = removeDup(str);
+                    sort(str.begin(), str.end());
+                    P np = P(n, str);
+                    
+                    if (visited.count(np))
+                        continue;
+                    
+                    q.push(np);
+                    visited.insert(np);
+                }
+            }
+         
+            step++;
+        }
+        
+        return step;
+    }
+};

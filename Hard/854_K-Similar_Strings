@@ -1,0 +1,53 @@
+// simple BFS
+// every time try to match the first unmatched char from left
+
+class Solution {
+public:
+    int kSimilarity(string A, string B) {
+        queue<string> q;
+        unordered_set<string> visited;
+        q.push(A);
+        visited.insert(A);
+        int step = 0;
+        while (q.size())
+        {
+            size_t size = q.size();
+            for (int k = 0; k < size; k++)
+            {
+                auto str = q.front();
+                q.pop();
+                
+                if (str == B)
+                    return step;
+                
+                int i = 0;
+                for (; i < B.size(); i++)
+                {
+                    if (str[i] != B[i])
+                        break;
+                }
+                
+                for (int j = i+1; j < A.size(); j++)
+                {
+                    if (str[j] == B[i])
+                    {
+                        swap(str[j], str[i]);
+                        if (visited.count(str))
+                        {
+                            swap(str[j], str[i]);
+                            continue;
+                        }
+                        
+                        visited.insert(str);
+                        q.push(str);
+                        swap(str[j], str[i]);
+                    }
+                }
+                
+            }
+            step++;
+        }
+        
+        return step;
+    }
+};
