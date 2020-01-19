@@ -1,0 +1,66 @@
+// priority queue
+// put the boarders in pq and pop the lowest at a time, note here the minHeight of this grid is known
+// any new cells lower than this min height can contain water
+// put unvisisted neighbors in the pq until all the nodes are visisted
+
+
+typedef pair<int, int> P;
+typedef pair<int, P> MMP;
+class Solution {
+public:
+    int trapRainWater(vector<vector<int>>& heightMap) {
+        if (heightMap.size() == 0)
+            return 0;
+        
+        int m = heightMap.size(), n = heightMap[0].size();
+        multimap<int, P> mm;
+        unordered_map<int, unordered_set<int> > visited;
+        
+        for (int i = 0; i < n; i++)
+        {
+            mm.insert(MMP(heightMap[0][i], P(0, i)));
+            visited[0].insert(i);
+            mm.insert(MMP(heightMap[m-1][i], P(m-1, i)));
+            visited[m-1].insert(i);
+        }
+        
+        for (int i = 1; i < m-1; i++)
+        {
+            mm.insert(MMP(heightMap[i][0], P(i, 0)));
+             visited[i].insert(0);
+            mm.insert(MMP(heightMap[i][n-1], P(i, n-1)));
+             visited[i].insert(n-1);
+        }
+        
+        int result = 0;
+        int maxHeight = 0;
+        vector<int> v1({0,1,0,-1});
+        
+        vector<int> v2({1,0,-1,0});
+        while (mm.size())
+        {
+            auto mmp = *mm.begin();
+            mm.erase(mm.begin());
+            
+            maxHeight = max(maxHeight, mmp.first);
+            
+            for (int k = 0; k < 4; k++)
+            {
+                int nx = mmp.second.first + v1[k];
+                int ny = mmp.second.second + v2[k];
+                
+                if (nx < 0 || nx >= m || ny <0 || ny >=n)
+                    continue;
+                
+                if (visited.count(nx) && visited[nx].count(ny))
+                    continue;
+                
+                visited[nx].insert(ny);
+                mm.insert(MMP(heightMap[nx][ny], P(nx, ny)));
+                result += max(0, maxHeight-heightMap[nx][ny]);
+            }
+            
+        }
+        return result;
+    }
+};
